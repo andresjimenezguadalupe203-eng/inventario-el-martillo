@@ -1,0 +1,82 @@
+{% extends 'inventario/base.html' %}
+{% block title %}Catálogo{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Catálogo de productos</h2>
+
+{% if user.is_authenticated and productos_bajos %}
+  <div class="alert alert-danger">
+    ⚠️ Hay {{ productos_bajos }} producto(s) con stock bajo (≤ {{ stock_bajo_limite }} piezas).
+  </div>
+{% endif %}
+
+<form method="get" class="row g-2 mb-4">
+  <div class="col-md-8">
+    <input type="text" name="q" value="{{ q }}" class="form-control"
+           placeholder="Buscar por nombre, código de barras o categoría...">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-dark">Buscar</button>
+  </div>
+  {% if q %}
+    <div class="col-auto">
+      <a href="{% url 'producto_lista' %}" class="btn btn-outline-secondary">Limpiar búsqueda</a>
+    </div>
+  {% endif %}
+</form>
+
+{% if productos %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for p in productos %}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <span class="badge text-bg-secondary mb-2">{{ p.categoria.nombre }}</span>
+            <h5 class="card-title">{{ p.nombre }}</h5>
+            <p class="card-text mb-1"><strong>Precio:</strong> ${{ p.precio }}</p>
+            <p class="card-text mb-1">
+              <strong>Stock:</strong> {{ p.stock }}
+              {% if p.stock <= stock_bajo_limite %}
+                <span class="badge text-bg-danger">Stock bajo</span>
+              {% endif %}
+            </p>
+            <p class="card-text text-muted small mb-0">Código: {{ p.codigo_barras }}</p>
+          </div>
+          {% if user.is_authenticated %}
+            <div class="card-footer bg-white d-flex gap-2">
+              <a href="{% url 'producto_editar' p.pk %}" class="btn btn-sm btn-outline-primary">Editar</a>
+              <a href="{% url 'producto_eliminar' p.pk %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}">Anterior</a>
+          </li>
+        {% endif %}
+
+        {% for n in paginator.page_range %}
+          <li class="page-item {% if n == page_obj.number %}active{% endif %}">
+            <a class="page-link" href="?page={{ n }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ n }}</a>
+          </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}">Siguiente</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+{% else %}
+  <div class="alert alert-secondary">No se encontraron productos{% if q %} para "{{ q }}"{% endif %}.</div>
+{% endif %}
+{% endblock %}
