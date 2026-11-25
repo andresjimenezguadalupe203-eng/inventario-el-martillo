@@ -136,3 +136,11 @@ MESSAGE_TAGS = {
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'producto_lista'
 LOGOUT_REDIRECT_URL = 'producto_lista'
+
+import os
+
+# URL pública para acceder a los archivos subidos
+MEDIA_URL = '/media/'
+
+# Carpeta física en tu computadora donde Django guardará las imágenes
+MEDIA_ROOT = BASE_DIR / 'media'

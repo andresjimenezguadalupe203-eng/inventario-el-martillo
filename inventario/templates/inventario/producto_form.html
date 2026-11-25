@@ -7,7 +7,7 @@
     <div class="card shadow-sm">
       <div class="card-body p-4">
         <h3 class="mb-3">{% if object %}Editar{% else %}Nuevo{% endif %} producto</h3>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
           {{ form.non_field_errors }}
           {% for field in form %}
